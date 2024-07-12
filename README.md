@@ -39,6 +39,6 @@ cd /opt/spark/bin
 Airflow will orchestrate the steps of our ELT.
 
 
-#Minio
+### Minio
 
 It will be the bucket of our parquet files.

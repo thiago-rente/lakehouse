@@ -2,16 +2,22 @@
 
 ## IT ALL BEGINS WITH...
 Let's start to build a lakehouse, containing:
+
 a. Apache Spark 
+
 b. Apache Airflow
+
 c. Minio
 
 
 ### Apache Spark
 
 We will use Spark to process the parquet files inside medal folders of the lake. To configure the spark, I'm following the tutorial from Safouane Ennasser:
+
 https://medium.com/@SaphE/testing-apache-spark-locally-docker-compose-and-kubernetes-deployment-94d35a54f222
+
 https://medium.com/@SaphE/deploying-apache-spark-on-a-local-kubernetes-cluster-a-comprehensive-guide-d4a59c6b1204
+
 https://medium.com/@SaphE/deploying-apache-spark-on-kubernetes-using-helm-charts-simplified-cluster-management-and-ee5e4f2264fd
 
 #### First way:

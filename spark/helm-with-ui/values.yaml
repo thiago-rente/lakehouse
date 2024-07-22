@@ -1,0 +1,2 @@
+# Airflow executor
+executor: "KubernetesExecutor"

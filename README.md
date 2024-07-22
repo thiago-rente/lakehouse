@@ -117,11 +117,110 @@ kubectl port-forward <driver-pod-name> 4040:4040
 Then we can access Spark UI via "localhost:4040" while the job is still running!
 
 
+### Third way
+
+We will install Spark using helm and helm charts. After installing helm in the computer, let's install Spark Operator by downloading it from the repository and installing it in your cluster:
+
+```
+
+helm repo add spark-operator https://kubeflow.github.io/spark-operator
+
+helm install my-spark-operator spark-operator/spark-operator --namespace spark-operator --create-namespace --set webhook.enable=true
+
+```
+
+To check your installation, use this command:
+```
+
+helm status --namespace spark-operator my-spark-operator
+
+```
+
+Let's apply the yaml:
+```
+
+kubectl apply -f spark-pi.yaml
+
+```
+
+To check the application, use this command:
+```
+
+kubectl describe sparkapplication --namespace=spark-operator
+
+```
+
+### Fourth way
+
+This was my way to start a spark pod in k8s, following these steps after installing helm and kubectl:
+
+First, to install a spark pod with one master and two workers, use this helm commands:
+```
+
+helm install spark-with-ui oci://registry-1.docker.io/bitnamicharts/spark
+
+helm upgrade --install spark-with-ui --set worker.replicaCount=2 oci://registry-1.docker.io/bitnamicharts/spark --create-namespace --namespace=lakehouse
+
+```
+
+To execute a test, run a spark-submit in the master pod:
+```
+
+kubectl exec -it -n lakehouse spark-with-ui-master-0 -- ./bin/spark-submit \
+ --class org.apache.spark.examples.SparkPi \
+ --master spark://spark-with-ui-master-0:7077 \
+ ./examples/jars/spark-examples_2.12-3.5.1.jar 1000
+
+```
+
+To access the spark-ui, we need to make a port-foward to its http port:
+```
+
+kubectl port-forward svc/spark-with-ui-master-svc 80:80 --namespace lakehouse
+
+```
+
+
 ### Apache Airflow
 
 Airflow will orchestrate the steps of our ELT.
+
+```
+
+helm repo add apache-airflow https://airflow.apache.org
+
+```
+
+To install an airflow instance, run this helm command (you need a values.yaml file with the manifest of the installation):
+```
+
+helm upgrade --install airflow apache-airflow/airflow --namespace lakehouse -f values.yaml --version 2.8.4
+
+````
+
+To enter in the Airflow webserver, we need to make a port-forward in kubectl to the webserver port:
+```
+
+kubectl port-forward svc/airflow-webserver 8080:8080 --namespace lakehouse
+
+```
 
 
 ### Minio
 
 It will be the bucket of our parquet files.
+
+
+
+
+kubectl config set-context --current --namespace lakehouse
+
+helm show values apache-airflow/airflow > values.yaml
+helm upgrade --install airflow apache-airflow/airflow --namespace lakehouse --create-namespace --values values.yaml
+
+
+kubectl create namespace lakehouse && kubectl config set-context --current --namespace=lakehouse
+
+
+
+

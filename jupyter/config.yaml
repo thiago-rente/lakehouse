@@ -1,0 +1,4 @@
+singleuser:
+  image:
+    name: jupyter/pyspark-notebook
+    tag: latest

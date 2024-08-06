@@ -32,7 +32,11 @@ minikube start --memory 9000 --cpus 3
 Then, to install SPARK, let's run this helm commands:
 ```
 
-helm install spark oci://registry-1.docker.io/bitnamicharts/spark --version 9.2.5 --create-namespace --namespace=lakehouse --set worker.replicaCount=3 --set worker.resources.memory=2g --set service.type=NodePort
+helm install spark oci://registry-1.docker.io/bitnamicharts/spark --version 8.7.2 --create-namespace --namespace=lakehouse --set worker.replicaCount=3 --set worker.resources.memory=2g --set service.type=NodePort
+
+OR
+
+helm install spark oci://registry-1.docker.io/bitnamicharts/spark --version 8.7.2 --create-namespace --namespace=lakehouse --set worker.replicaCount=2 --set service.type=NodePort
 
 ```
 
@@ -43,6 +47,11 @@ kubectl exec -it -n lakehouse spark-master-0 -- ./bin/spark-submit \
  --class org.apache.spark.examples.SparkPi \
  --master spark://spark-master-0:7077 \
  ./examples/jars/spark-examples_2.12-3.5.1.jar 1000
+
+ kubectl exec -it -n lakehouse spark-master-0 -- ./bin/spark-submit \
+ --class org.apache.spark.examples.SparkPi \
+ --master spark://spark-master-0:7077 \
+ ./examples/src/main/python/sort.py /tmp/
 
 ```
 
@@ -140,6 +149,14 @@ kubectl --namespace=lakehouse port-forward service/proxy-public 54345:80
 
 ```
 
+Create a user in local jupyterhub and then look for a pod named "jupyter-{user created}". Then, expose a driver port to this pod creating a service, this is how Spark will communicate with the notebooks to execute the jobs:
+```
+
+kubectl expose pod -n lakehouse --type=ClusterIP --cluster-ip=None jupyter-thiago --port=2222 --target-port=2222
+
+```
+
+
 
 Some commands that help me in the Devops tasks:
 
@@ -157,11 +174,13 @@ OR
 kubectl get pod spark-worker-0 --template='{{(index (index .spec.containers 0).ports 0).containerPort}}{{"\n"}}' -n lakehouse
 ```
 
-
+- To copy files to a pod:
+```
 kubectl cp tmp/data.json lakehouse/spark-master-0:/tmp/
+kubectl cp tmp/data.json lakehouse/jupyter-thiago:/tmp/
+```
 
+- To run commands in bash:
+```
 kubectl -n lakehouse exec --stdin --tty spark-master-0 -- /bin/bash 
-
-kubectl -n lakehouse exec --stdin --tty proxy-public -- /bin/bash
-
-apt-get install openjdk-8-jdk-headless -qq    
+```

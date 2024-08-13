@@ -1,2 +1,21 @@
 # Airflow executor
 executor: "KubernetesExecutor"
+
+webserverSecretKey: 20faccea7e3353195a4f8f06e91be49c
+
+# images:
+#   airflow:
+#     repository: minha_imagem_airflow
+#     tag: "1.0"
+#     # Specifying digest takes precedence over tag.
+#     digest: ~
+#     pullPolicy: IfNotPresent
+# 
+# webserver:
+#   resources:
+#     limits:
+#       cpu: "2000m"
+#       memory: "3Gi"
+#     requests:
+#       cpu: "800m"
+#       memory: "2Gi"
